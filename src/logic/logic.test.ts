@@ -23,3 +23,11 @@ test('Demo graph is as expected', () => {
     // test
     expect(construct_demo_graph()).toEqual(expected_graph);
 });
+
+test('maximum flow of demo graph is 4', () => {
+    let g = construct_demo_graph();
+    let source = 0;
+    let sink = 9;
+    let ff = new jsgraphs.FordFulkerson(g, source, sink);
+    expect(ff.value).toBe(4);
+});
