@@ -1,0 +1,24 @@
+{
+    "students": [
+        {
+            "preferences":[1,2,3],
+            "name":"Student 1"
+        },
+        {
+            "preferences":[1],
+            "name":"Student 2"
+        },
+        {
+            "preferences":[2],
+            "name":"Student 3"
+        },
+        {
+            "preferences":[3],
+            "name":"Student 4"
+        },
+        {
+            "preferences":[],
+            "name":"Student 4"
+        }
+    ]
+}
