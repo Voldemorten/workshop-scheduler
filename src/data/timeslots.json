@@ -1,13 +1,13 @@
 {
     "timeslots": [
         {
+            "capacity": 1
+        },
+        {
+            "capacity": 1
+        },
+        {
             "capacity": 2
-        },
-        {
-            "capacity": 1
-        },
-        {
-            "capacity": 1
         }
     ]
 }
