@@ -1,5 +1,4 @@
 const jsgraphs = require('./jsgraphs');
-const deepcopy = require('deepcopy');
 
 export function construct_demo_graph() {
     let students = require('../data/students.json').students;
@@ -87,10 +86,6 @@ export function print_solution(solution) {
     if(solution['penalty']>0) console.error("Penalty: " + solution['penalty'] + "\n\n");
     else console.log("Penalty: " + solution['penalty'] + "\n\n");
 };
-
-export function deep_copy(obj) {
-    return deepcopy(obj);
-}
 
 export function export_demo() {
     console.log("demo");
