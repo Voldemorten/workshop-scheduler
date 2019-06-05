@@ -87,8 +87,4 @@ export function print_solution(solution) {
     else console.log("Penalty: " + solution['penalty'] + "\n\n");
 };
 
-export function export_demo() {
-    console.log("demo");
-};
-
 export default construct_demo_graph
