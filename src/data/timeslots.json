@@ -1,12 +1,51 @@
 {
     "timeslots": [
         {
+            "day": 1,
+            "timeslot": 1,
+            "time": "8:00-10:00 AM",
             "capacity": 1
         },
         {
+            "day": 1,
+            "timeslot": 2,
+            "time": "10:00-12:00 AM",
             "capacity": 1
         },
         {
+            "day": 1,
+            "timeslot": 3,
+            "time": "1:00-3:00 PM",
+            "capacity": 1
+        },
+        {
+            "day": 1,
+            "timeslot": 4,
+            "time": "3:00-5:00 PM",
+            "capacity": 2
+        },
+        {
+            "day": 2,
+            "timeslot": 1,
+            "time": "8:00-10:00 AM",
+            "capacity": 1
+        },
+        {
+            "day": 2,
+            "timeslot": 2,
+            "time": "10:00-12:00 AM",
+            "capacity": 1
+        },
+        {
+            "day": 2,
+            "timeslot": 3,
+            "time": "1:00-3:00 PM",
+            "capacity": 1
+        },
+        {
+            "day": 2,
+            "timeslot": 4,
+            "time": "3:00-5:00 PM",
             "capacity": 2
         }
     ]

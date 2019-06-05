@@ -79,14 +79,15 @@ var jsgraphs = jsgraphs || {};
     
     jss.FlowNetwork = FlowNetwork;
     
-    var FordFulkerson = function(G, s, t) {
+    var FordFulkerson = function(G) {
         this.value = 0;
         var V = G.V;
         var bottle = Number.MAX_VALUE;
         this.marked = null;
         this.edgeTo = null;
-        this.s = s;
-        this.t = t;
+        // assuming that s is always 0 and t is always vertex number length - 1
+        this.s = 0;
+        this.t = G.V - 1;
         while(this.hasAugmentedPath(G)){
             for(var x = this.t; x != this.s; x = this.edgeTo[x].other(x)) {
                 bottle = Math.min(bottle, this.edgeTo[x].residualCapacityTo(x));
