@@ -13,7 +13,7 @@ export class App extends React.Component {
         let opt_solution;
         //couldn't get deep copy to work...
         let org_graph = Logic.construct_graph(students, timeslots, no_of_timeslots_per_day);
-        for(let i = 0; i<1; i++) {
+        for(let i = 0; i<10; i++) {
             let g = Logic.construct_graph(students, timeslots, no_of_timeslots_per_day);
             let ff = Logic.compute_max_flow(g);
             if(ff.value == g['max_capacity']) {
