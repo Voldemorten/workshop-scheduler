@@ -130,6 +130,8 @@ var jsgraphs = jsgraphs || {};
                     this.edgeTo[w] = e;
                     this.marked[w] = true;
                     if(w == this.t){
+                        console.log(this.edgeTo);
+                        console.log(this.marked);
                         return true;
                     }
                     vector.push(w);

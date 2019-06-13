@@ -1,9 +1,61 @@
 const jsgraphs = require('./jsgraphs');
 
-export function construct_demo_graph() {
-    let students = require('../data/students.json').students;
-    let timeslots = require('../data/timeslots.json').timeslots;
-    let no_of_timeslots_per_day = 4;
+export function generate_random_data() {
+    let out = {}
+    let no_of_students = Math.floor(Math.random() * (100 - 50 + 1)) + 50; //between 50 and 100;
+    let no_of_timeslots_per_day = Math.floor(Math.random() * (5 - 3 + 1)) + 3; //between 3 and 5;
+    let no_of_days = Math.floor(Math.random() * (5 - 3 + 1)) + 3; //between 3 and 5;
+    let timeslots_length = Math.floor(Math.random() * (3 - 1 + 1)) + 1; //between 1 and 3;
+    let start_time = 8
+    let max_preferences = Math.floor(Math.random() * (no_of_days*no_of_timeslots_per_day));
+    let names = require('../data/names.json').names;
+
+    console.log(`Random generated data... No of students: ${no_of_students}, No of days: ${no_of_days}, No of timeslots per day: ${no_of_timeslots_per_day}, length of timeslots: ${timeslots_length}`);
+    //generate timeslots
+    let timeslots = [];
+    for(let day = 1; day<no_of_days+1; day++) {
+        for(let timeslot = 1; timeslot<no_of_timeslots_per_day+1; timeslot++) {
+            // max = no of students / no of timeslots
+            let capacity = Math.floor(Math.random() * ((no_of_students*max_preferences/4)/(no_of_timeslots_per_day*no_of_days) - 1 + 1)) + 1;
+            let new_timeslot = {"day": day, "timeslot": timeslot, "capacity": capacity, "time": start_time+(timeslot-1)*timeslots_length+":00-"+(start_time+timeslot*timeslots_length)+":00" };
+            timeslots.push(new_timeslot);
+        }
+    }
+    //generate students
+    let students = [];
+    for(let i = 0; i<no_of_students; i++) {
+        let name = names[i];
+        let no_of_preferences = Math.floor(Math.random()* (max_preferences));
+        var preferences = [];    
+        for(let j = 0; j<no_of_preferences; j++) {
+            do {
+                let day = Math.floor(Math.random() * (no_of_days)) + 1;
+                let timeslot = Math.floor(Math.random()* (no_of_timeslots_per_day))+1;
+                var new_preference = [day, timeslot];
+                var preferences_string = preferences.map((e) => {
+                    return JSON.stringify(e);
+                }); 
+                var new_preference_string = JSON.stringify(new_preference);
+            } while (preferences_string.indexOf(new_preference_string)>=0)
+            preferences.push(new_preference);
+        }
+        //sorting preferences
+        preferences = preferences.sort((a, b) => {
+            if(a[0] == b[0]) {
+                return a[1] - b[1];
+            } return a[0] - b[0];
+        });
+
+        let new_student = {"name": name, "preferences": preferences, "no": i+1};
+        students.push(new_student);
+    }
+    out["timeslots"] = timeslots;
+    out["students"] = students;
+    out["no_of_timeslots_per_day"] = no_of_timeslots_per_day;
+    return out;
+}
+
+export function construct_graph(students, timeslots, no_of_timeslots_per_day) {
     //node 0 should be source and node [student.length + timeslots.length + 2] should be sink
     let size = students.length + timeslots.length + 2
     let g = new jsgraphs.FlowNetwork(size);
@@ -19,11 +71,13 @@ export function construct_demo_graph() {
     
     //create edges from source to every student
     for(let i = 0; i<students.length; i++) {
-        g.addEdge(new jsgraphs.FlowEdge(0, i+1, 100));
+        g.addEdge(new jsgraphs.FlowEdge(0, i+1, Infinity));
         
         //labeling 
         g.node(i+1).label = students[i].name;
-        g.node(i+1).type = "student"
+        g.node(i+1).type = "student";
+        g.node(i+1).student_no = i+1;
+        g.node(i+1).preferences = students[i].preferences;
         g.edge(0, i+1).label = "From source to " + students[i].name;
         
         
@@ -55,7 +109,7 @@ export function compute_max_flow(g) {
     return new jsgraphs.FordFulkerson(g);
 }
 
-export function convert_to_solution(g) {
+export function convert_to_solution(g, debug) {
     let out = {}
     out["solution"] = {}
     out["penalty"] = 0;
@@ -66,23 +120,34 @@ export function convert_to_solution(g) {
         })
         // to compute penalty
         let end_nodes = [];
-        for(let j = 0; j<adjlist.length; j++) {
+        if(adjlist.length > 0) {
+            var from = g.node(adjlist[0].v); //the student that is assigned
+            for(let j = 0; j<adjlist.length; j++) {
                 end_nodes.push(adjlist[j].w);
-                let from = g.node(adjlist[j].v).label;
-                let to = g.node(adjlist[j].w).label;
-                if(!out["solution"][from]) {
-                    out["solution"][from] = [to]
+                var fromLabel = from.label + " (Student #" + from.student_no + ")" ;
+                let toLabel = g.node(adjlist[j].w).label;
+                if(!out["solution"][fromLabel]) {
+                    out["solution"][fromLabel] = [toLabel]
                 } else {
-                    out["solution"][from].push(to);
+                    out["solution"][fromLabel].push(toLabel);
                 }
-        }
+            }
 
-        for(let k = end_nodes.length-1; k>0; k--) {
-            if (g.node(end_nodes[k]).day == g.node(end_nodes[k-1]).day) {
-                let diff = end_nodes[k] - end_nodes[k-1];
-                if (diff > 1) {
-                    console.log("PENALTY!: ", end_nodes[k], " ", end_nodes[k-1])
-                    out['penalty'] += diff-1;
+            for(let k = end_nodes.length-1; k>0; k--) {
+                if (g.node(end_nodes[k]).day == g.node(end_nodes[k-1]).day) {
+                    let diff = end_nodes[k] - end_nodes[k-1];
+                    if (diff > 1) {
+                        //check if the diff is in the students preferences:
+                        for(let i = diff-1; i>0; i--) {
+                            //hacky way to search for a preference
+                            let preferencesString = from.preferences.map(JSON.stringify);
+                            let timeslotString = JSON.stringify([g.node(end_nodes[k]-i).day, g.node(end_nodes[k]-i).timeslot]);
+                            if(preferencesString.indexOf(timeslotString) >= 0) {
+                                if(debug) console.log("PENALTY!: ", g.node(end_nodes[k]), " ", g.node(end_nodes[k-1]), " dif: ", i, " Student: ", from);
+                                out['penalty']++;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -96,4 +161,4 @@ export function print_solution(solution) {
     else console.log("Penalty: " + solution['penalty'] + "\n\n");
 };
 
-export default construct_demo_graph
+export default construct_graph
