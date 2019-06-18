@@ -20,5 +20,55 @@
             "preferences":[[2,4]],
             "name":"Student 5"
         }
+    ],
+    "students2": [
+        {
+            "preferences": [[0,0],[0,2]],
+            "name": "Student 1"
+        },
+        {
+            "preferences": [[0,1],[0,2],[0,3]],
+            "name": "Student 2"
+        }
+    ],
+    "students3": [
+        {
+            "preferences": [[0,0],[0,1], [0,2], [0,3], [0,4], [1,0], [1,1], [1,2]],
+            "name": "Student 1"
+        }
+    ],
+    "students4": [
+        {
+            "preferences": [[0,1],[0,2]],
+            "name": "Student 1"
+        },
+        {
+            "preferences": [[0,0],[0,1],[0,2],[0,3]],
+            "name": "Student 2"
+        }
+    ],
+    "students5": [
+        {
+            "preferences": [[0,0],[0,2]],
+            "name": "Student 1"
+        },
+        {
+            "preferences": [[0,1],[0,2],[0,3]],
+            "name": "Student 2"
+        },
+        {
+            "preferences": [[0,0],[0,1],[0,2],[0,3]],
+            "name": "Student 3"
+        }
+    ],
+    "students6": [
+        {
+            "preferences": [[0,1],[0,2],[0,3]],
+            "name": "Student 1"
+        },
+        {
+            "preferences": [[0,0],[0,2],[0,3],[0,4]],
+            "name": "Student 2"
+        }
     ]
 }

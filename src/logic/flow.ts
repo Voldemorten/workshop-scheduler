@@ -109,42 +109,51 @@ export function compute_max_flow(g) {
     return new jsgraphs.FordFulkerson(g);
 }
 
-export function convert_to_solution(g, debug) {
-    let out = {}
-    out["solution"] = {}
-    out["penalty"] = 0;
+export function compute_penalty(g, debug) {
+    let penalty_edges = []
+    let penalty_edge;
+    while(penalty_edge = find_penalty_edge(g, penalty_edges)) {
+        console.log(g.edge(penalty_edge[0],penalty_edge[1]));
+        //get incoming edges
+        let incoming_edges = g.adj(penalty_edge[1]).filter((e) => {
+            return e.w == penalty_edge[1];
+        });
+        console.log(g.adj(penalty_edge[1]));
+        console.log(incoming_edges);
+        penalty_edges.push(penalty_edge);
+    }
+    return penalty_edges.length;
+}
+
+function find_penalty_edge(g, penalty_edges) {
     for(let i = 0; i<g.adjList.length; i++) {
-        let adjlist = g.adjList[i];
+        let adjlist = g.adj(i);
         adjlist = adjlist.filter((e) => {
-            return e.v == i && e.flow != 0 && g.node(e.v).type == "student";
+            return e.from() == i && e.flow != 0 && g.node(e.from()).type == "student";
         })
         // to compute penalty
-        let end_nodes = [];
         if(adjlist.length > 0) {
-            var from = g.node(adjlist[0].v); //the student that is assigned
-            for(let j = 0; j<adjlist.length; j++) {
-                end_nodes.push(adjlist[j].w);
-                var fromLabel = from.label + " (Student #" + from.student_no + ")" ;
-                let toLabel = g.node(adjlist[j].w).label;
-                if(!out["solution"][fromLabel]) {
-                    out["solution"][fromLabel] = [toLabel]
-                } else {
-                    out["solution"][fromLabel].push(toLabel);
-                }
-            }
-
-            for(let k = end_nodes.length-1; k>0; k--) {
-                if (g.node(end_nodes[k]).day == g.node(end_nodes[k-1]).day) {
-                    let diff = end_nodes[k] - end_nodes[k-1];
+            var from = adjlist[0].from(); //the student that is assigned
+            for(let k = adjlist.length-1; k>0; k--) {
+                let end_node = adjlist[k].to()
+                let neighbor_end_node = adjlist[k-1].to()
+                //must be same day
+                if (g.node(end_node).day == g.node(neighbor_end_node).day) {
+                    let diff = end_node - neighbor_end_node;
                     if (diff > 1) {
                         //check if the diff is in the students preferences:
                         for(let i = diff-1; i>0; i--) {
                             //hacky way to search for a preference
-                            let preferencesString = from.preferences.map(JSON.stringify);
-                            let timeslotString = JSON.stringify([g.node(end_nodes[k]-i).day, g.node(end_nodes[k]-i).timeslot]);
+                            let preferencesString = g.node(from).preferences.map(JSON.stringify);
+                            let timeslotString = JSON.stringify([g.node(end_node-i).day, g.node(end_node-i).timeslot]);
                             if(preferencesString.indexOf(timeslotString) >= 0) {
-                                if(debug) console.log("PENALTY!: ", g.node(end_nodes[k]), " ", g.node(end_nodes[k-1]), " dif: ", i, " Student: ", from);
-                                out['penalty']++;
+                                console.log(`there should be flow between node  no ${from} and ${end_node-i}`);
+                                let penalty_edges_string = penalty_edges.map(JSON.stringify);
+                                let new_penalty_edge = [from, end_node-i];
+                                let penalty_edge_string = JSON.stringify(new_penalty_edge);
+                                if(penalty_edges_string.indexOf(penalty_edge_string) == -1) {
+                                    return new_penalty_edge;
+                                } else continue;
                             }
                         }
                     }
@@ -152,13 +161,31 @@ export function convert_to_solution(g, debug) {
             }
         }
     }
-    return out;
-};
+    return false;
+}
 
-export function print_solution(solution) {
-    console.table(solution['solution']);
-    if(solution['penalty']>0) console.error("Penalty: " + solution['penalty'] + "\n\n");
-    else console.log("Penalty: " + solution['penalty'] + "\n\n");
+export function print_solution(g) {
+    let solution = {}
+    for(let i = 0; i<g.adjList.length; i++) {
+        let adjlist = g.adjList[i];
+        adjlist = adjlist.filter((e) => {
+            return e.from() == i && e.flow != 0 && g.node(e.from()).type == "student";
+        })
+        // to compute penalty
+        if(adjlist.length > 0) {
+            var from = g.node(adjlist[0].from()); //the student that is assigned
+            for(let j = 0; j<adjlist.length; j++) {
+                var fromLabel = from.label + " (Student #" + from.student_no + ")" ;
+                let toLabel = g.node(adjlist[j].to()).label;
+                if(!solution[fromLabel]) {
+                    solution[fromLabel] = [toLabel]
+                } else {
+                    solution[fromLabel].push(toLabel);
+                }
+            }
+        }
+    }
+    console.table(solution);
 };
 
 export default construct_graph

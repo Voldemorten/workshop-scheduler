@@ -48,5 +48,97 @@
             "time": "3:00-5:00 PM",
             "capacity": 2
         }
+    ],
+    "timeslots2": [
+        {
+            "day": 0,
+            "timeslot": 0,
+            "capacity": 1
+        },
+        {
+            "day": 0,
+            "timeslot": 1,
+            "capacity": 1
+        },
+        {
+            "day": 0,
+            "timeslot": 2,
+            "capacity": 1
+        },
+        {
+            "day": 0,
+            "timeslot": 3,
+            "capacity": 1
+        },
+        {
+            "day": 0,
+            "timeslot": 4,
+            "capacity": 1
+        },
+        {
+            "day": 1,
+            "timeslot": 0,
+            "capacity": 1
+        },
+        {
+            "day": 1,
+            "timeslot": 1,
+            "capacity": 1
+        },
+        {
+            "day": 1,
+            "timeslot": 2,
+            "capacity": 1
+        }
+
+    ],
+    "timeslots4": [
+        {
+            "day": 0,
+            "timeslot": 0,
+            "capacity": 2
+        },
+        {
+            "day": 0,
+            "timeslot": 1,
+            "capacity": 1
+        },
+        {
+            "day": 0,
+            "timeslot": 2,
+            "capacity": 2
+        },
+        {
+            "day": 0,
+            "timeslot": 3,
+            "capacity": 1
+        }
+    ],
+    "timeslots6": [
+        {
+            "day": 0,
+            "timeslot": 0,
+            "capacity": 1
+        },
+        {
+            "day": 0,
+            "timeslot": 1,
+            "capacity": 1
+        },
+        {
+            "day": 0,
+            "timeslot": 2,
+            "capacity": 1
+        },
+        {
+            "day": 0,
+            "timeslot": 3,
+            "capacity": 1
+        },
+        {
+            "day": 0,
+            "timeslot": 4,
+            "capacity": 1
+        }
     ]
 }

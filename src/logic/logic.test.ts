@@ -1,4 +1,4 @@
-import construct_demo_graph from "./logic";
+import construct_demo_graph from "./flow";
 var jsgraphs = require('js-graph-algorithms');
 
 // test('Demo graph is as expected', () => {

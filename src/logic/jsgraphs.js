@@ -104,9 +104,9 @@ var jsgraphs = jsgraphs || {};
         }
     };
 
-    FlowEdge.prototype.addCost = function(newCost) {
-        this.cost = newCost;
-    }
+    // FlowEdge.prototype.addCost = function(newCost) {
+    //     this.cost = newCost;
+    // }
     
     FlowEdge.prototype.from = function() {
         return this.v;
@@ -186,18 +186,20 @@ var jsgraphs = jsgraphs || {};
                         return this.edgeTo[x].v == e.v && G.node(this.edgeTo[x].w).day == G.node(e.w).day;
                     });
 
+                    // Trying to add cost:
+                    // ---------------------
                     //find index of current edge in adjacency list.
-                    let edgeIndex = adjList.indexOf(this.edgeTo[x]);
-                    for(let i = 0; i<adjList.length; i++) {
-                        //bottom numbers
-                        var cost = 0;
-                        if(i < edgeIndex) {
-                            cost = edgeIndex-1-i;
-                        } else if(i > edgeIndex) {
-                            cost = Math.abs(edgeIndex+1-i);
-                        } else {} //ignore the current element
-                        adjList[i].addCost(cost);
-                    }
+                    // let edgeIndex = adjList.indexOf(this.edgeTo[x]);
+                    // for(let i = 0; i<adjList.length; i++) {
+                    //     //bottom numbers
+                    //     var cost = 0;
+                    //     if(i < edgeIndex) {
+                    //         cost = edgeIndex-1-i;
+                    //     } else if(i > edgeIndex) {
+                    //         cost = Math.abs(edgeIndex+1-i);
+                    //     } else {} //ignore the current element
+                    //     adjList[i].addCost(cost);
+                    // }
                 }
                 this.edgeTo[x].addResidualFlowTo(x, bottle);
             }
