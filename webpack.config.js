@@ -9,7 +9,7 @@ module.exports = {
   },
   output: {
     path: path.join(__dirname, '/dist'),
-    filename: 'bundle.min.js'
+    filename: 'bundle.js'
   },
   module: {
     rules: [
@@ -23,5 +23,5 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html'
     })
-  ]
+  ],
 }

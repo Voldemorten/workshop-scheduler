@@ -1,4 +1,4 @@
-import {Container, Col, Row, Button} from 'react-bootstrap';
+import {Container, Col, Row, Button, Card, Modal, Form} from 'react-bootstrap';
 
 import * as React from "react";
 
@@ -12,129 +12,144 @@ import AssignedSchedule from './AssignedSchedule';
 export class App extends React.Component<any, any> {
     constructor(props) {
         super(props);
-        let input = Greedy.generate_random_data();
-        console.log(input);
+        // let input = Greedy.generate_random_data();
+        // console.log(input);
         this.state = {
           assigned: false,
-          students: input["students"],
-          timeslots: input["timeslots"],
-          schedule: Greedy.construct_schedule(input["students"], input["timeslots"])
+          students: [],
+          timeslots: [],
+		  schedule: [],
+		  addingStudent: false,
           //move everything to state
         };
   
-        this.toggleAssigned = this.toggleAssigned.bind(this);
-     }
+		this.toggleAssigned = this.toggleAssigned.bind(this);
+	}
   
-     toggleAssigned() {
-        this.setState(state => ({
-          assigned: !state.assigned
-        }));
-     }
+	toggleAssigned() {
+		this.setState(state => ({
+			assigned: !state.assigned
+		}));
+	}
+
+	toggleAddingStudent = () => this.setState((state) => {
+		return {addingStudent: !state.addingStudent}
+	})
+
+	handleAddingStudentSubmit = (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		let name = e.target.name.value;
+		//assuming preferences is in this format [0,0] [0,2] … 
+		let preferences = e.target.preferences.value.split(" ").map(el => [parseInt(el[1]),parseInt(el[3])])
+		this.addStudent({name: name, preferences: preferences});
+		e.target.name.value = "";
+		e.target.preferences.value = "";
+	}
+
+	addStudent = (student) => {
+		this.setState((state) => {
+			return {students: state.students.concat([student])}
+		})
+	}
+
+
      
     render() {
-        // let input = Greedy.generate_random_data()
-        // this.setState(() => {
-        //     return {students: input["students"], timeslots: input["timeslots"], schedule: input["schedule"], assigned: false}
-        // })
-        // Demo graph - self made
-        //-----------------------------
-        // let students = require('../data/students.json').students;
-        // let timeslots = require('../data/timeslots.json').timeslots;
-        // let no_of_timeslots_per_day = 4;
-        // let opt_penalty = Infinity;
-        // let opt_solution;
-        // //couldn't get deep copy to work...
-        // let org_graph = Flow.construct_graph(students, timeslots, no_of_timeslots_per_day);
-        // for(let i = 0; i<10; i++) {
-        //     let g = Flow.construct_graph(students, timeslots, no_of_timeslots_per_day);
-        //     let ff = Flow.compute_max_flow(g);
-        //     if(ff.value == g['max_capacity']) {
-        //         console.log("Solution " + i + "\n------------------------");
-        //         Flow.print_solution(g);
-        //         let penalty = Flow.compute_penalty(g, true);
-        //         if(penalty) console.error("penalty: ", penalty);
-        //         else console.log("penalty: ", penalty);
-
-        //         //used to find the best solution
-        //         if(penalty < opt_penalty) {
-        //             opt_penalty = penalty;
-        //             opt_solution = g;
-        //         }
-        //     } else {
-        //         console.log("No feasible solution");
-        //         break;
-        //     }
-        // }
-        // console.log("\nOptimal solution:\n------------------------");
-        // Flow.print_solution(opt_solution);
-        
-        //Random data
-        //-----------------------------
-        // for(let i = 0; i<10; i++) {
-        //     let random_data = Flow.generate_random_data();
-        //     let students = random_data["students"];
-        //     let timeslots = random_data["timeslots"];
-        //     let no_of_timeslots_per_day = random_data["no_of_timeslots_per_day"];
-        //     let g = Flow.construct_graph(students, timeslots, no_of_timeslots_per_day);
-        //     console.log(g);
-        //     let ff = Flow.compute_max_flow(g);
-        //     console.log(ff);
-        //     console.log("Solution \n------------------------");
-        //     Flow.print_solution(g);
-        //     let penalty = Flow.compute_penalty(g, true);
-        //     if(penalty) console.error("penalty: ", penalty);
-        //     else console.log("penalty: ", penalty);
-        // }
-
-        //Lets try a greedy aproach:
-        // let students = require('../data/students.json').students6;
-        // let timeslots = require('../data/timeslots.json').timeslots6;
-        
-
-        // console.log("Total capacity: ", total_capacity);
-        // console.log("Total preferences: ", total_preferences);
-        
-        //generate empty schedule
-        // let schedule = Greedy.construct_schedule(students, timeslots);
-        // assign students to schedule
-        // Greedy.assign_students(students, schedule);
-        // if(Greedy.check_schedule(schedule)) {
-            // console.log("Total penalty: ", Greedy.get_total_penalty(students));
-        // };
-        // Greedy.print_schedule(schedule);
-        // Greedy.print_students(students);
-
-
         return (
             <Container style={containerStyle}>
+				
+				<AddStudentModal
+					show={this.state.addingStudent}
+					onHide={this.toggleAddingStudent}
+					onSubmit={this.handleAddingStudentSubmit}
+				/>
+
                 <Row>
                     <Col>
                         {this.state.students.length == 0 ?
-                            <div>No students!</div>:
+                            <Card>
+								<Card.Img src="/images/students_table_demo.png" alt="Card image" />
+								<Card.ImgOverlay style={cardImageOverlayStyle}
+									onClick={() => {
+										this.toggleAddingStudent();
+									}}
+								>
+									<Card.Title>Click to add new student</Card.Title>
+									<Card.Text>
+										- or generate random students below
+									</Card.Text>
+								</Card.ImgOverlay>
+                            </Card>
+                            :
                             <StudentTable
                                 students = {this.state.students}
                             ></StudentTable>
-                        }
-                        
+						}
+						<div>
+							<Button
+								className="or-after-button" 
+								style={blockButtonStyle}
+								variant="outline-primary"
+								size="lg"
+								block
+								onClick={() => {
+									this.toggleAddingStudent();
+								}}
+							>Add student
+							</Button>
+							<Button 
+								style={blockButtonStyle}
+								variant="outline-primary"
+								size="lg"
+								block
+								onClick={() => {
+									console.log("demo");
+								}}
+							>Generate random students
+							</Button>
+						</div>
+
                     </Col>
                     <Col>
-                        <UnassignedSchedule
+						{this.state.timeslots.length == 0 ?
+						<Card>
+							<Card.Img src="/images/schedule_demo.png" alt="Card image" />
+							<Card.ImgOverlay style={cardImageOverlayStyle}>
+								<Card.Title>Click to add new timeslot</Card.Title>
+								<Card.Text>
+									- or generate random students below
+								</Card.Text>
+							</Card.ImgOverlay>
+						</Card>
+						:
+						<UnassignedSchedule
                             schedule = {this.state.schedule}
                         ></UnassignedSchedule>
+						}
+						<div>
+
+						</div>
                     </Col>
                 </Row>
                 <Row>
-                    <Button 
-                        style={blockButtonStyle}
-                        variant="primary"
-                        size="lg"
-                        block
-                        onClick={() => {
-                            Greedy.assign_students(this.state.students, this.state.schedule)
-                            this.toggleAssigned();
-                        }}
-                    >Assign students! 
-                    </Button>
+					{
+						this.state.students.length > 0 && this.state.schedule.length > 0 ?
+						<Button 
+							style={blockButtonStyle}
+							variant="primary"
+							size="lg"
+							block
+							onClick={() => {
+								Greedy.assign_students(this.state.students, this.state.schedule)
+								this.toggleAssigned();
+							}}
+						>Assign students! 
+						</Button>
+						:
+						null
+					}
+                    
                 </Row>
                 <Row>
                     {/* <AssignedSchedule
@@ -148,13 +163,63 @@ export class App extends React.Component<any, any> {
     }
 }
 
-const blockButtonStyle = {
+class AddStudentModal extends React.Component<any,any> {
+	render() {
+	  return (
+		<Modal
+		  {...this.props}
+		  size="lg"
+		  aria-labelledby="contained-modal-title-vcenter"
+		  centered
+		>
+		  <Modal.Header closeButton>
+			<Modal.Title id="contained-modal-title-vcenter">
+			  Add new student
+			</Modal.Title>
+		  </Modal.Header>
+		  <Modal.Body>
+		  <Form onSubmit={this.props.onSubmit}>
+			<Form.Group>
+				<Form.Label>Name</Form.Label>
+				<Form.Control type="text" name="name" placeholder="Enter name"/>
+			</Form.Group>
+			<Form.Group>
+				<Form.Label>Preferences</Form.Label>
+				<Form.Control as="textarea" rows="3" name="preferences" placeholder="[0,1],[0,2],[3,2]"/>
+				<Form.Text className="text-muted">
+					Please enter preferences in the form: [day, timeslot] [day, timeslot]
+				</Form.Text>
+			</Form.Group>
+			<Button variant="primary" type="submit">Add student</Button>
+			</Form>
+		  </Modal.Body>
+		  <Modal.Footer>
+			<Button onClick={this.props.onHide}>Close</Button>
+		  </Modal.Footer>
+		</Modal>
+	  );
+	}
+  }
+
+const blockButtonStyle: React.CSSProperties = {
     width: "50%",
-    margin: "50px auto"
+	margin: "25px auto",
+	position: "relative"
 }
 
 const containerStyle = {
     margin: "50px auto"
+}
+
+const cardImageOverlayStyle: React.CSSProperties = {
+	background: "rgba(255,255,255,0.9)",
+	border: "6px dashed rgba(0,0,0,0.5)",
+	transform: "scale(1.01)",
+	borderRadius: "0.7em",
+	display: "flex",
+	flexDirection: "column",
+	alignItems: "center",
+	justifyContent: "center"
 }
 
 // let input = Greedy.generate_random_data()
