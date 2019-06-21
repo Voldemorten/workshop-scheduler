@@ -113,13 +113,13 @@ export function compute_penalty(g, debug) {
     let penalty_edges = []
     let penalty_edge;
     while(penalty_edge = find_penalty_edge(g, penalty_edges)) {
-        console.log(g.edge(penalty_edge[0],penalty_edge[1]));
+        // console.log(g.edge(penalty_edge[0],penalty_edge[1]));
         //get incoming edges
         let incoming_edges = g.adj(penalty_edge[1]).filter((e) => {
             return e.w == penalty_edge[1];
         });
-        console.log(g.adj(penalty_edge[1]));
-        console.log(incoming_edges);
+        // console.log(g.adj(penalty_edge[1]));
+        // console.log(incoming_edges);
         penalty_edges.push(penalty_edge);
     }
     return penalty_edges.length;

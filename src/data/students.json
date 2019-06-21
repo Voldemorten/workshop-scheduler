@@ -67,7 +67,7 @@
             "name": "Student 1"
         },
         {
-            "preferences": [[0,0],[0,2],[0,3],[0,4]],
+            "preferences": [[0,0],[0,2],[0,4]],
             "name": "Student 2"
         }
     ]
