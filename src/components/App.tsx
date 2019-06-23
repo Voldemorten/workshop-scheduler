@@ -6,8 +6,8 @@ import * as Flow from "../logic/flow";
 import * as Greedy from "../logic/greedy";
 import StudentTable from './StudentTable'
 import UnassignedSchedule from './UnassignedSchedule';
-import { transform } from '@babel/core';
 import AssignedSchedule from './AssignedSchedule';
+import { Student } from '../models/Student/Student'
 
 export class App extends React.Component<any, any> {
     constructor(props) {
@@ -50,10 +50,11 @@ export class App extends React.Component<any, any> {
 		e.preventDefault();
 		e.stopPropagation();
 		let name = e.target.name.value;
-		//assuming preferences is in this format [0,0] [0,2] … 
 		let preferences = e.target.preferences.value.split(" ").map(el => [parseInt(el[1]),parseInt(el[3])])
-		preferences = Greedy.sort_preferences(preferences);
-		this.addStudent({name: name, preferences: preferences});
+		let student = new Student(name, preferences);
+		student.sort_preferences();
+		this.addStudent(student);
+		//clear fields. 
 		e.target.name.value = "";
 		e.target.preferences.value = "";
 	}
@@ -75,7 +76,7 @@ export class App extends React.Component<any, any> {
 		this.generateStudents(no_of_students, this.state.schedule);
 	}
 
-	addStudent = (student) => {
+	addStudent = (student:Student) => {
 		this.setState((state) => {
 			return {assigned: false, students: state.students.concat([student])}
 		})

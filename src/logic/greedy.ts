@@ -26,13 +26,7 @@ export function construct_schedule(timeslots) {
     return schedule;
 }
 
-export function sort_preferences(preferences) {
-    return preferences.sort((a, b) => {
-        if(a[0] == b[0]) {
-            return a[1] - b[1];
-        } return a[0] - b[0];
-    });   
-}
+
 
 export function get_total_capacity(schedule) {
     return schedule.reduce((acc, arr) => {
@@ -68,7 +62,7 @@ export function generate_students(no_of_students, schedule) {
             preferences.push(new_preference);
         }
         //sorting preferences
-        sort_preferences(preferences);
+        // sort_preferences(preferences);
 
         let new_student = {"name": name, "preferences": preferences};
         students.push(new_student);
