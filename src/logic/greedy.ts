@@ -1,10 +1,12 @@
+import { Timeslot } from "../models/Timeslot/Timeslot";
+
 export function generate_timeslots(no_of_days, no_of_timeslots_per_day, capacity) {
     //generate timeslots
     let timeslots = [];
     for(let day = 0; day<no_of_days; day++) {
         for(let timeslot = 0; timeslot<no_of_timeslots_per_day; timeslot++) {
             // max = no of students / no of timeslots
-            let new_timeslot = {"day": day, "timeslot": timeslot, "capacity": capacity};
+            let new_timeslot = new Timeslot(day, timeslot, capacity, []);
             timeslots.push(new_timeslot);
         }
     }

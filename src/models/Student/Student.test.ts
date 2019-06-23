@@ -1,24 +1,35 @@
 import { Student } from "./Student";
+import { Timeslot } from "../Timeslot/Timeslot";
 
 test("Test sorting_preferences of student", () => {
-    let student1 = new Student("test student", [[1,0],[0,1]]);
-    expect(student1.preferences).toEqual([[0,1],[1,0]]);
+    let timeslot1 = new Timeslot(1,0,1,[]);
+    let timeslot2 = new Timeslot(0,1,1,[]);
+    let student1 = new Student("test student", [timeslot1, timeslot2], []);
+    expect(student1.preferences).toEqual([timeslot2,timeslot1]);
+    
 })
 
 test("Test adding prefence", () => {
-    let student = new Student("test student",[]);
+    let student = new Student("test student",[], []);
+    let timeslot1 = new Timeslot(1,0,1,[])
+    let timeslot2 = new Timeslot(1,1,1,[])
+    let timeslot3 = new Timeslot(1,1,1,[])
     expect(student.preferences).toEqual([]);
-    student.add_preference([1,0]);
-    expect(student.preferences).toEqual([[1,0]])
-    student.add_preference([1,1]);
-    expect(student.preferences).toEqual([[1,0],[1,1]])
-    student.add_preference([1,1]);
-    expect(student.preferences).toEqual([[1,0],[1,1]])
+    student.add_preference(timeslot1);
+    expect(student.preferences).toEqual([timeslot1])
+    student.add_preference(timeslot2);
+    expect(student.preferences).toEqual([timeslot1, timeslot2])
+    student.add_preference(timeslot3);
+    expect(student.preferences).toEqual([timeslot1, timeslot2])
 })
 
 test("Test removing preference", () => {
-    let student = new Student("test student",[[0,1],[0,2],[0,3]]);
-    expect(student.preferences).toEqual([[0,1],[0,2],[0,3]]);
-    student.remove_preference([0,1]);
-    expect(student.preferences).toEqual([[0,2],[0,3]]);
+    let timeslot1 = new Timeslot(0,1,1,[])
+    let timeslot2 = new Timeslot(0,2,1,[])
+    let timeslot3 = new Timeslot(0,3,1,[])
+
+    let student = new Student("test student", [timeslot1, timeslot2, timeslot3], []);
+    expect(student.preferences).toEqual([timeslot1, timeslot2, timeslot3]);
+    student.remove_preference(new Timeslot(0,1,1,[]));
+    expect(student.preferences).toEqual([timeslot2, timeslot3]);
 })

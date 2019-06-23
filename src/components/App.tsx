@@ -51,7 +51,7 @@ export class App extends React.Component<any, any> {
 		e.stopPropagation();
 		let name = e.target.name.value;
 		let preferences = e.target.preferences.value.split(" ").map(el => [parseInt(el[1]),parseInt(el[3])])
-		let student = new Student(name, preferences);
+		let student = new Student(name, preferences, []);
 		student.sort_preferences();
 		this.addStudent(student);
 		//clear fields. 
