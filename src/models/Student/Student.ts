@@ -20,29 +20,97 @@ export class Student {
         });   
     }
 
-    add_preference = (preference: Timeslot) => {
-        let preferences = JSON.stringify(this.preferences);
-        let preference_string = JSON.stringify(preference);
-        if(preferences.indexOf(preference_string) == -1) {
-            this.preferences.push(preference);
+    // sort_assigned = () => {
+    //     this.assigned.sort((a: Timeslot, b: Timeslot) => {
+    //         if(a.day == b.day) {
+    //             return a.timeslot - b.timeslot;
+    //         } return a.day - b.day;
+    //     });   
+    // }
+
+    add_preference = (timeslot: Timeslot) => {
+        let index = this.search_assigned_or_preferences(this.preferences, timeslot);
+        if(index == -1) {
+            this.preferences.push(timeslot);
             this.sort_preferences();
         }
     }
 
-    remove_preference = (preference: Timeslot) => {
-        let preferences = JSON.stringify(this.preferences);
-        let preference_string = JSON.stringify(preference);
-        let index = preferences.indexOf(preference_string);
-        console.log(preferences);
-        console.log(preference_string);
-        console.log(index);
-        if(index > -1) {
-            this.preferences.splice(index-1,1);
+    remove_preference = (timeslot: Timeslot) => {
+        let index = this.search_assigned_or_preferences(this.preferences, timeslot);
+        if(index >= 0) this.preferences.splice(index,1);
+    }
+
+    assign_timeslot = (timeslot: Timeslot) => {
+        if(this.search_assigned_or_preferences(this.assigned, timeslot) == -1) {
+            this.assigned.push(timeslot);
         }
     }
 
-    //missing test
+    remove_assigned = (timeslot: Timeslot) => {
+        let index = this.search_assigned_or_preferences(this.assigned, timeslot);
+        if(index>=0) this.assigned.splice(index,1);
+    }
+
     count_diff_days_assigned = () => {
         return [...new Set(this.assigned.map((e) => e.day))].length;
+    }
+
+    find_penalty_edges() {  
+        let penalty_edges = []  
+        //do the same for different days
+        let no_days = this.count_diff_days_assigned();
+        for(let i = 0; i<no_days; i++) {
+            //filter assigned and preferences and turn them to JSON
+            let assigned = this.assigned.filter((a) => a.day == i)
+            let preferences = this.preferences.filter((p) => p.day == i)
+            if(assigned.length > 1 && preferences.length > 1) {
+                //check if preference is in assigned
+                for(let j = 0; j<preferences.length; j++) {
+                    let preference = preferences[j]
+                    let found = this.search_assigned_or_preferences(this.assigned, preference);
+                    if(found == -1) {
+                        //not found. There might be a penalty. Find the position of the preference
+                        let index = this.search_assigned_or_preferences(this.preferences, preference);
+                        let found_down = this.closest_assigned_pref_down(index);
+                        if(found_down != -1) {
+                            let found_up = this.closest_assigned_pref_up(index);
+                            if(found_up != -1) {
+                                penalty_edges.push(preference);
+                            }
+                        }
+                    }
+                }
+            }
+        };        
+        return penalty_edges;
+    }
+
+    search_assigned_or_preferences = (arr: Array<Timeslot>, timeslot: Timeslot) => {
+        for(let i = 0; i < arr.length; i++) {
+            if(arr[i].day == timeslot.day && arr[i].timeslot == timeslot.timeslot) {
+                return i;
+            }
+        }
+        return -1
+    }
+
+    //find closest assigned preference in both directions
+    closest_assigned_pref_down = (index: number) => {
+        for(let i = index-1; i>=0; i--) {
+            let found = this.search_assigned_or_preferences(this.assigned, this.preferences[i])
+            if(found >= 0) return found;
+        }
+        return -1;
+    }
+
+    closest_assigned_pref_up = (index: number) => {
+        for(let i = index+1; i<this.preferences.length; i++) {
+            let found = this.search_assigned_or_preferences(this.assigned, this.preferences[i])
+            if(found >= 0) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

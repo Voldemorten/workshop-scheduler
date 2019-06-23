@@ -10,7 +10,7 @@ export default class Student extends React.Component<any,any> {
                 <td>
                     {this.props.preferences.map((preference, index) => {
                         return (
-                            <Badge pill variant="primary" key={index}>[{preference[0]},{preference[1]}]</Badge>
+                            <Badge pill variant="primary" key={index}>[{preference.day},{preference.timeslot}]</Badge>
                         )
                     })}
                 </td>

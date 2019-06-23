@@ -7,14 +7,15 @@ import * as Greedy from "../logic/greedy";
 import StudentTable from './StudentTable'
 import UnassignedSchedule from './UnassignedSchedule';
 import AssignedSchedule from './AssignedSchedule';
-import { Student } from '../models/Student/Student'
+import { Student } from '../models/Student/Student';
+import { Timeslot } from '../models/Timeslot/Timeslot';
 
 export class App extends React.Component<any, any> {
     constructor(props) {
         super(props);
         this.state = {
           assigned: false,
-          students: [],
+          students:[],
           timeslots: [],
 		  schedule: [],
 		  addingStudent: false,
@@ -23,8 +24,7 @@ export class App extends React.Component<any, any> {
 		  totalPenalty: 0,
 		  //the difference between total capacity and total assigned
 		  diff: 0,
-        };
-  
+		};  
 		this.toggleAssigned = this.toggleAssigned.bind(this);
 	}
   
@@ -64,8 +64,11 @@ export class App extends React.Component<any, any> {
 		e.stopPropagation();
 		let days = e.target.days.value;
 		let timeslots_per_day = e.target.timeslots.value;
-		let capacity = e.target.capacity.value
-		let timeslots = Greedy.generate_timeslots(days, timeslots_per_day, capacity);
+		let capacity = e.target.capacity.value;
+		let timeslots = Greedy.generate_balanced_timeslots(days, timeslots_per_day, capacity);
+		this.setState(() => {
+			return {assigned: false, timeslots: timeslots }
+		})
 		this.generateSchedule(timeslots);
 	}
 
@@ -73,7 +76,7 @@ export class App extends React.Component<any, any> {
 		e.preventDefault();
 		e.stopPropagation();
 		let no_of_students = e.target.students.value
-		this.generateStudents(no_of_students, this.state.schedule);
+		this.generateStudents(no_of_students);
 	}
 
 	addStudent = (student:Student) => {
@@ -89,23 +92,23 @@ export class App extends React.Component<any, any> {
 		})
 	}
 
-	generateSchedule = (timeslots) => {
+	generateSchedule = (timeslots: Array<Timeslot>) => {
+		let _schedule = Greedy.map_timeslots_to_schedule(timeslots);
 		this.setState(() => {
-			return {assigned: false, timeslots: timeslots, schedule: Greedy.construct_schedule(timeslots)}
+			return {assigned: false, schedule: _schedule}
 		})
-
 	}
 
-	generateStudents = (no_of_students, schedule) => {
+	generateStudents = (no_of_students) => {
 		this.setState(() => {
-			return {assigned: false, students: Greedy.generate_students(no_of_students, schedule)}
+			return {assigned: false, students: Greedy.generate_students(this.state.timeslots, no_of_students)}
 		})
 	}
 
 	assignStudents() {
 		let res = Greedy.assign_students(this.state.students, this.state.schedule);
 		this.setState(() => {
-			return {students: res["students"], schedule: res["schedule"], totalPenalty: Greedy.get_total_penalty(res["students"]), totalCapacity: Greedy.get_total_capacity(res["schedule"]), diff: Greedy.check_schedule(res["schedule"])}
+			return {students: res["students"], schedule: res["schedule"], totalPenalty: Greedy.get_total_penalty(res["students"]), totalCapacity: Greedy.timeslots_get_total_capacity(this.state.timeslots), diff: Greedy.check_schedule(res["schedule"])}
 		})
 	}
 
