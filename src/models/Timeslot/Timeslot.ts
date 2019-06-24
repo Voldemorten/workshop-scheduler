@@ -19,6 +19,13 @@ export class Timeslot {
         }
     }
 
+    remove_student(student: Student) {
+        let index = this.search_assigned(student);
+        if(index >= 0) {
+            this.assigned.splice(index,1);
+        }
+    }
+
     search_assigned(student: Student) {
         for(let i = 0; i < this.assigned.length; i++) {
             if(this.assigned[i].index == student.index) {

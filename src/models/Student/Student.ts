@@ -61,8 +61,8 @@ export class Student {
         return [...new Set(this.assigned.map((e) => e.day))].length;
     }
 
-    find_penalty_edges() {  
-        let penalty_edges = []  
+    find_penalty_timeslots() {  
+        let penalty_timeslots = []  
         //do the same for different days
         let no_days = this.count_diff_days_assigned();
         for(let i = 0; i<no_days; i++) {
@@ -81,14 +81,14 @@ export class Student {
                         if(found_down != -1) {
                             let found_up = this.closest_assigned_pref_up(index);
                             if(found_up != -1) {
-                                penalty_edges.push(preference);
+                                penalty_timeslots.push(preference);
                             }
                         }
                     }
                 }
             }
         };        
-        return penalty_edges;
+        return penalty_timeslots;
     }
 
     search_assigned_or_preferences = (arr: Array<Timeslot>, timeslot: Timeslot) => {

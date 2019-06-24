@@ -110,22 +110,22 @@ export function compute_max_flow(g) {
 }
 
 export function compute_penalty(g, debug) {
-    let penalty_edges = []
-    let penalty_edge;
-    while(penalty_edge = find_penalty_edge(g, penalty_edges)) {
-        // console.log(g.edge(penalty_edge[0],penalty_edge[1]));
+    let penalty_timeslots = []
+    let penalty_timeslot;
+    while(penalty_timeslot = find_penalty_timeslot(g, penalty_timeslots)) {
+        // console.log(g.edge(penalty_timeslot[0],penalty_timeslot[1]));
         //get incoming edges
-        let incoming_edges = g.adj(penalty_edge[1]).filter((e) => {
-            return e.w == penalty_edge[1];
+        let incoming_edges = g.adj(penalty_timeslot[1]).filter((e) => {
+            return e.w == penalty_timeslot[1];
         });
-        // console.log(g.adj(penalty_edge[1]));
+        // console.log(g.adj(penalty_timeslot[1]));
         // console.log(incoming_edges);
-        penalty_edges.push(penalty_edge);
+        penalty_timeslots.push(penalty_timeslot);
     }
-    return penalty_edges.length;
+    return penalty_timeslots.length;
 }
 
-function find_penalty_edge(g, penalty_edges) {
+function find_penalty_timeslot(g, penalty_timeslots) {
     for(let i = 0; i<g.adjList.length; i++) {
         let adjlist = g.adj(i);
         adjlist = adjlist.filter((e) => {
@@ -148,11 +148,11 @@ function find_penalty_edge(g, penalty_edges) {
                             let timeslotString = JSON.stringify([g.node(end_node-i).day, g.node(end_node-i).timeslot]);
                             if(preferencesString.indexOf(timeslotString) >= 0) {
                                 console.log(`there should be flow between node  no ${from} and ${end_node-i}`);
-                                let penalty_edges_string = penalty_edges.map(JSON.stringify);
-                                let new_penalty_edge = [from, end_node-i];
-                                let penalty_edge_string = JSON.stringify(new_penalty_edge);
-                                if(penalty_edges_string.indexOf(penalty_edge_string) == -1) {
-                                    return new_penalty_edge;
+                                let penalty_timeslots_string = penalty_timeslots.map(JSON.stringify);
+                                let new_penalty_timeslot = [from, end_node-i];
+                                let penalty_timeslot_string = JSON.stringify(new_penalty_timeslot);
+                                if(penalty_timeslots_string.indexOf(penalty_timeslot_string) == -1) {
+                                    return new_penalty_timeslot;
                                 } else continue;
                             }
                         }

@@ -131,10 +131,10 @@ test("find penalty edges", () => {
 
     let student = new Student("demo", [ts1, ts2, ts3], [ts1, ts3]);
 
-    // expect(student.find_penalty_edges()).toEqual([ts2]);
+    // expect(student.find_penalty_timeslots()).toEqual([ts2]);
 
     let student2 = new Student("demo2", [ts1, ts2, ts3, ts4], [ts1, ts3]);
-    expect(student2.find_penalty_edges()).toEqual([ts2]);
+    expect(student2.find_penalty_timeslots()).toEqual([ts2]);
 })
 
 

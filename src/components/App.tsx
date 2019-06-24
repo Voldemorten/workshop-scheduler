@@ -1,8 +1,6 @@
 import {Container, Col, Row, Button, Card, Modal, Form} from 'react-bootstrap';
 
 import * as React from "react";
-
-import * as Flow from "../logic/flow";
 import * as Greedy from "../logic/greedy";
 import StudentTable from './StudentTable'
 import UnassignedSchedule from './UnassignedSchedule';
@@ -71,7 +69,7 @@ export class App extends React.Component<any, any> {
 			//uncheck checkboxes
 			checkboxesArr[i].checked = false;
 		}
-		
+
 		let name = e.target.name.value;
 		let student = new Student(name, preferences, []);
 		student.sort_preferences();
@@ -101,8 +99,9 @@ export class App extends React.Component<any, any> {
 	}
 
 	addStudent = (student:Student) => {
+		let schedule = Greedy.clear_schedule(this.state.schedule);
 		this.setState((state) => {
-			return {assigned: false, students: state.students.concat([student])}
+			return {assigned: false, students: state.students.concat([student]), schedule: schedule}
 		})
 	}
 
@@ -114,15 +113,16 @@ export class App extends React.Component<any, any> {
 	}
 
 	generateSchedule = (timeslots: Array<Timeslot>) => {
-		let _schedule = Greedy.map_timeslots_to_schedule(timeslots);
+		let schedule = Greedy.map_timeslots_to_schedule(timeslots);
 		this.setState(() => {
-			return {assigned: false, schedule: _schedule}
+			return {assigned: false, schedule: schedule}
 		})
 	}
 
 	generateStudents = (no_of_students) => {
+		let schedule = Greedy.clear_schedule(this.state.schedule);
 		this.setState(() => {
-			return {assigned: false, students: Greedy.generate_students(this.state.timeslots, no_of_students)}
+			return {assigned: false, students: Greedy.generate_students(this.state.timeslots, no_of_students), schedule: schedule}
 		})
 	}
 
@@ -132,7 +132,6 @@ export class App extends React.Component<any, any> {
 			return {students: res["students"], schedule: res["schedule"], totalPenalty: Greedy.get_total_penalty(res["students"]), totalCapacity: Greedy.timeslots_get_total_capacity(this.state.timeslots), diff: Greedy.check_schedule(res["schedule"])}
 		})
 	}
-
 
     render() {
         return (
@@ -147,7 +146,6 @@ export class App extends React.Component<any, any> {
 					null
 				}
 				
-
 				<CreateScheduleModal
 					show={this.state.creatingSchedule}
 					onHide={this.toggleCreatingSchedule}
@@ -240,8 +238,21 @@ export class App extends React.Component<any, any> {
 									this.toggleGeneratingStudents();
 								}}
 								disabled = {this.state.schedule.length == 0}
-								className = {this.state.schedule.length == 0 ? "not-allowed" : ".or-after-button"}
+								className = {this.state.schedule.length == 0 ? "not-allowed or-after-button" : "or-after-button"}
 							>Generate students
+							</Button>
+							<Button
+								style={blockButtonStyle}
+								variant="outline-primary"
+								size="lg"
+								block
+								onClick={() => {
+									let schedule = Greedy.clear_schedule(this.state.schedule);
+									this.setState(() => {
+										return { students: [], schedule: schedule};
+									})
+								}}
+							>Clear students
 							</Button>
 						</div>
 

@@ -2,37 +2,10 @@ import { Timeslot } from "../models/Timeslot/Timeslot";
 import { Student } from "../models/Student/Student";
 const names = require('../data/names.json').names
 
-function find_swap(timeslot, new_student, students) {
-    for(let i = 0; i < timeslot.assigned.length; i++) {
-        let old_student_index = timeslot.assigned[i];
-        let old_student = students[old_student_index];
-        //compute combined penalty
-        let combined_penalty_before = old_student.find_penalty_edges().length + new_student.find_penalty_edges().length;
-        //try a swap
-        swap_students(timeslot, new_student, i, students);
 
-        let combined_penalty_after = old_student.find_penalty_edges().length + new_student.find_penalty_edges().length;
-        if(combined_penalty_after > combined_penalty_before) {
-            //swap students back
-            swap_students(timeslot, old_student, i, students);
-        }
-    }
-}
-
-function swap_students(timeslot, new_student, old_student_index, students) {
-    //remove timeslot from old student
-    let old_student = timeslot.assigned[old_student_index];
-    let index_of_timeslot = students[old_student].assigned.findIndex((e) => e == timeslot)
-    students[old_student].assigned.splice(index_of_timeslot, 1);
-    
-    //add timeslot to new student
-    new_student.assigned.push(timeslot);
-
-    //swap students in timeslot
-    timeslot.assigned[old_student_index] = new_student.index;
-    return old_student;
-}
-
+/**
+ * SCHEDULE FUNCTIONS!
+ */
 export function assign_students(students: Array<Student>, schedule) {
     let out = {}
      //assign students greedily
@@ -51,14 +24,11 @@ export function assign_students(students: Array<Student>, schedule) {
                 student.assign_timeslot(timeslot);
 
                 //compute penalty of adding student 
-                let penalty_edges = student.find_penalty_edges();
-                console.log("penalty edges: ", penalty_edges);
-                for(let k = 0; k < penalty_edges.length; k++) {
-                    console.log("penalty edges found!");
-                    console.log(JSON.parse(JSON.stringify(penalty_edges)));
-                    let penalty_edge = penalty_edges[k];
-                    let problematic_timeslot = schedule[penalty_edge[0]][penalty_edge[1]];
-                    find_swap(problematic_timeslot, student, students);
+                let penalty_timeslots = student.find_penalty_timeslots();
+                for(let k = 0; k < penalty_timeslots.length; k++) {
+                    console.log("penalty edges found: ", penalty_timeslots);
+                    let penalty_timeslot = penalty_timeslots[k];
+                    find_swap(penalty_timeslots[k], student);
                     console.table(JSON.parse(JSON.stringify(schedule))[0]);
                 }
             }
@@ -69,9 +39,35 @@ export function assign_students(students: Array<Student>, schedule) {
     return out;
 }
 
-/**
- * SCHEDULE FUNCTIONS!
- */
+export function find_swap(timeslot:Timeslot, new_student:Student) {
+    for(let i = 0; i < timeslot.assigned.length; i++) {
+        let old_student = timeslot.assigned[i];
+        //compute combined penalty
+        let combined_penalty_before = old_student.find_penalty_timeslots().length + new_student.find_penalty_timeslots().length;
+        //try a swap
+        swap_students(timeslot, old_student, new_student);
+        console.log("swapped ", old_student, " with ", new_student, " on ", timeslot);
+
+        let combined_penalty_after = old_student.find_penalty_timeslots().length + new_student.find_penalty_timeslots().length;
+        console.log("penalty before swap: ", combined_penalty_before, " penalty after swap: ", combined_penalty_after);
+        if(combined_penalty_after > combined_penalty_before) {
+            console.log("swapping back");
+            //swap students back
+            swap_students(timeslot, new_student, old_student);
+        }
+    }
+}
+
+export function swap_students(timeslot:Timeslot, old_student:Student, new_student:Student) {
+    //remove timeslot from old_student
+    old_student.remove_assigned(timeslot);
+    //remove old_student from timeslot
+    timeslot.remove_student(old_student);
+    //add new student to timeslot
+    timeslot.assign_student(new_student);
+    //add timeslot to new student
+    new_student.assign_timeslot(timeslot);
+}
 
 //check if a solution is feasible ie all timeslots are filled
 export function check_schedule(schedule) {
@@ -97,6 +93,15 @@ export function check_schedule(schedule) {
     return diff;
 }
 
+export function clear_schedule(schedule:Array<Array<Timeslot>>) {
+    for(let i = 0; i<schedule.length; i++) {
+        for(let j = 0; j<schedule[i].length; j++) {
+            schedule[i][j].assigned = [];
+        }
+    }
+    return schedule;
+}
+
 /**
  * STUDENTS FUNCTIONS
  */
@@ -117,7 +122,7 @@ export function generate_students(timeslots: Array<Timeslot>, no_of_students: nu
 
 export function get_total_penalty(students) {
     return students.reduce((acc, s) => {
-        return acc + s.find_penalty_edges().length;
+        return acc + s.find_penalty_timeslots().length;
     },0)
 }
 
@@ -173,7 +178,13 @@ export function map_timeslots_to_schedule(timeslots: Array<Timeslot>) {
     }
     return schedule;
 }
-
+/**
+ * OTHER FUNCTIONS
+ */
+export function assign_student_timeslot(student: Student, timeslot: Timeslot) {
+    student.assign_timeslot(timeslot);
+    timeslot.assign_student(student);
+}
 
 /**
  * ---------------------
@@ -253,7 +264,7 @@ export function generate_random_data() {
 //     let schedule = construct_schedule(timeslots);
 //     let assigned_schedule = assign_students(students, schedule);
 //     console.log(assigned_schedule);
-//     console.log(students[0].find_penalty_edges());
+//     console.log(students[0].find_penalty_timeslots());
 //     console.log(get_total_penalty(students));
 // }
 
