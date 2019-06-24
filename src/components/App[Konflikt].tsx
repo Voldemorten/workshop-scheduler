@@ -27,14 +27,6 @@ export class App extends React.Component<any, any> {
 		};  
 		this.toggleAssigned = this.toggleAssigned.bind(this);
 	}
-	
-	componentDidMount(){
-		document.addEventListener("keydown", (event) => {
-			if(event.keyCode == 83) {
-				console.log(this.state);
-			}
-		}, false);
-	}
   
 	toggleAssigned() {
 		this.setState(state => ({
@@ -57,35 +49,22 @@ export class App extends React.Component<any, any> {
 	handleAddingStudentSubmit = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
-	
-		//find preferences
-		let preferences = [];
-		let student_preferences_div = document.getElementById("student_preferences");
-		let checkboxes = student_preferences_div.getElementsByTagName("input");
-		let checkboxesArr = Array.prototype.slice.call( checkboxes )
-		checkboxesArr = checkboxesArr.filter(c => c.checked);
-		for(let i = 0; i<checkboxesArr.length; i++) {
-			let checkboxValue = checkboxesArr[i].value;
-			let timeslot = Greedy.search_timeslots(this.state.timeslots, checkboxValue[0], checkboxValue[2] );
-			preferences.push(timeslot)
-			//uncheck checkboxes
-			checkboxesArr[i].checked = false;
-		}
-		
 		let name = e.target.name.value;
+		let preferences = e.target.preferences.value.split(" ").map(el => [parseInt(el[1]),parseInt(el[3])])
 		let student = new Student(name, preferences, []);
 		student.sort_preferences();
 		this.addStudent(student);
-		// //clear fields. 
+		//clear fields. 
 		e.target.name.value = "";
+		e.target.preferences.value = "";
 	}
 
 	handleCreatingScheduleSubmit = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
-		let days = parseInt(e.target.days.value);
-		let timeslots_per_day = parseInt(e.target.timeslots.value);
-		let capacity = parseInt(e.target.capacity.value);
+		let days = e.target.days.value;
+		let timeslots_per_day = e.target.timeslots.value;
+		let capacity = e.target.capacity.value;
 		let timeslots = Greedy.generate_balanced_timeslots(days, timeslots_per_day, capacity);
 		this.setState(() => {
 			return {assigned: false, timeslots: timeslots }
@@ -124,6 +103,7 @@ export class App extends React.Component<any, any> {
 		this.setState(() => {
 			return {assigned: false, students: Greedy.generate_students(this.state.timeslots, no_of_students)}
 		})
+		console.log("THIS FUCKING SUCK!: ", this.state);
 	}
 
 	assignStudents() {
@@ -137,16 +117,12 @@ export class App extends React.Component<any, any> {
     render() {
         return (
             <Container style={containerStyle}>
-				{this.state.schedule.length > 0 ?
-					<AddStudentModal
-						show={this.state.addingStudent}
-						onHide={this.toggleAddingStudent}
-						onSubmit={this.handleAddingStudentSubmit}
-						schedule={this.state.schedule}
-					/> :
-					null
-				}
 				
+				<AddStudentModal
+					show={this.state.addingStudent}
+					onHide={this.toggleAddingStudent}
+					onSubmit={this.handleAddingStudentSubmit}
+				/>
 
 				<CreateScheduleModal
 					show={this.state.creatingSchedule}
@@ -288,7 +264,6 @@ export class App extends React.Component<any, any> {
 
 class AddStudentModal extends React.Component<any,any> {
 	render() {
-		let schedule_transposed = this.props.schedule[0].map((col, i) => this.props.schedule.map(row => row[i]));
 	  return (
 		<Modal
 		  {...this.props}
@@ -309,32 +284,10 @@ class AddStudentModal extends React.Component<any,any> {
 			</Form.Group>
 			<Form.Group>
 				<Form.Label>Preferences</Form.Label>
-				<div id="student_preferences">
-					{schedule_transposed.map((row, row_index) => {
-						return (
-							<Row key={row_index}>
-								{row.map((ts, column_index) => {
-									return (
-										<Col key={column_index}>
-											<Form.Check
-											key={column_index}
-											>
-												<Form.Check.Input
-													type="checkbox"
-													value={[column_index,row_index]}
-												></Form.Check.Input>
-												<Form.Check.Label>
-													{ts.day},{ts.timeslot}
-												</Form.Check.Label>
-											</Form.Check>
-										</Col>	
-									)
-								})}
-							</Row>
-						)
-						
-					})}
-				</div>
+				<Form.Control as="textarea" rows="3" name="preferences" placeholder="[0,1] [0,2] [3,2]"/>
+				<Form.Text className="text-muted">
+					Please enter preferences in the form: [day, timeslot] [day, timeslot]
+				</Form.Text>
 			</Form.Group>
 			<Button variant="primary" type="submit">Add student</Button>
 			</Form>
@@ -435,14 +388,6 @@ class AddStudentModal extends React.Component<any,any> {
 		</Modal>
 	  );
 	}
-  }
-
-  class PreferenceCheckbox extends React.Component {
-	  state = {
-		  checked: false
-	  }
-
-
   }
 
 const blockButtonStyle: React.CSSProperties = {

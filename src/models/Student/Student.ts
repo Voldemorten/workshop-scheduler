@@ -4,12 +4,17 @@ export class Student {
     name: String
     preferences: Array<Timeslot>
     assigned: Array<Timeslot>
+    index: number = 0
     
     constructor(name: String, preferences: Array<Timeslot>, assigned: Array<Timeslot>) {
         this.name = name;
         this.preferences = preferences;
         this.assigned = assigned;
         this.sort_preferences();
+    }
+
+    set_index(index:number) {
+        this.index = index;
     }
 
     sort_preferences = () => {

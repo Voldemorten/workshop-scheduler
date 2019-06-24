@@ -43,7 +43,7 @@ export default class AssignedSchedule extends React.Component<any,any> {
                                                                         <Badge 
                                                                             pill variant={style}
                                                                             key={index}
-                                                                        >{this.props.students[student].name}
+                                                                        >{student.name}
                                                                         </Badge>
                                                                     )}
                                                                 )

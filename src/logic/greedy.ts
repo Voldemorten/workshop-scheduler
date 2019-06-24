@@ -33,13 +33,12 @@ function swap_students(timeslot, new_student, old_student_index, students) {
     return old_student;
 }
 
-export function assign_students(students, schedule) {
+export function assign_students(students: Array<Student>, schedule) {
     let out = {}
      //assign students greedily
      for(let i = 0; i < students.length; i++) {
         let student = students[i];
-        student["assigned"] = []; //TODO: Delete
-        student["index"] = i;
+        student.set_index(i);
         for(let j = 0; j < student.preferences.length; j++) {
             let preference = student.preferences[j];
             let day = preference.day;
@@ -47,12 +46,13 @@ export function assign_students(students, schedule) {
             let timeslot = schedule[day][time];
             //if still capacity add student - greedy)
             if(timeslot.capacity > timeslot.assigned.length) {
-                
-                timeslot.assigned.push(student.index);
-                student.assigned.push(timeslot);
+                timeslot.assign_student(student);
+                // student.assigned.push(timeslot);
+                student.assign_timeslot(timeslot);
 
                 //compute penalty of adding student 
                 let penalty_edges = student.find_penalty_edges();
+                console.log("penalty edges: ", penalty_edges);
                 for(let k = 0; k < penalty_edges.length; k++) {
                     console.log("penalty edges found!");
                     console.log(JSON.parse(JSON.stringify(penalty_edges)));
@@ -68,6 +68,10 @@ export function assign_students(students, schedule) {
     out["schedule"] = schedule;
     return out;
 }
+
+/**
+ * SCHEDULE FUNCTIONS!
+ */
 
 //check if a solution is feasible ie all timeslots are filled
 export function check_schedule(schedule) {
@@ -93,31 +97,28 @@ export function check_schedule(schedule) {
     return diff;
 }
 
-export function get_total_penalty(students) {
-    return students.reduce((acc, s) => {
-        return acc + s.find_penalty_edges().length;
-    },0)
-}
-
 /**
  * STUDENTS FUNCTIONS
  */
 export function generate_students(timeslots: Array<Timeslot>, no_of_students: number) {
     let students = [];
     let no_of_preferences = Math.ceil(timeslots_get_total_capacity(timeslots)/no_of_students);
-    // let no_of_days = timeslots_get_number_of_days(timeslots);
-    // let no_of_timeslots = get_number_of_timeslots_per_day(timeslots);
-    
     for(let i = 0; i < no_of_students; i++) {
         let student = new Student(names[i],[],[]);
         for(let j = 0; j<no_of_preferences; j++) {
-            // let r = Math.floor(Math.random() * timeslots.length);
-            // let preference = timeslots[r];
-            student.add_preference(timeslots[1]);
+            let r = Math.floor(Math.random() * timeslots.length);
+            let preference = timeslots[r];
+            student.add_preference(preference);
         }
         students.push(student);
     }
     return students;
+}
+
+export function get_total_penalty(students) {
+    return students.reduce((acc, s) => {
+        return acc + s.find_penalty_edges().length;
+    },0)
 }
 
 /**
@@ -133,6 +134,15 @@ export function generate_balanced_timeslots (no_of_days:number, no_of_timeslots_
         }
     }
     return timeslots;
+}
+
+export function search_timeslots(timeslots: Array<Timeslot>, day: number, timeslot: number) {
+    for(let i = 0; i < timeslots.length; i++) {
+        if(timeslots[i].day == day && timeslots[i].timeslot == timeslot) {
+            return timeslots[i];
+        }
+    }
+    return -1;
 }
 
 export function timeslots_get_total_capacity (timeslots: Array<Timeslot>) {
