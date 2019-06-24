@@ -64,7 +64,6 @@ export class App extends React.Component<any, any> {
 		checkboxesArr = checkboxesArr.filter(c => c.checked);
 		for (let i = 0; i < checkboxesArr.length; i++) {
 			let checkboxValue = checkboxesArr[i].value;
-			console.log(checkboxValue);
 			let timeslot = Greedy.search_timeslots(this.state.timeslots, checkboxValue[0], checkboxValue[1]);
 			preferences.push(timeslot)
 			//uncheck checkboxes
@@ -328,23 +327,23 @@ class AddStudentModal extends React.Component<any, any> {
 											{row.map((ts, column_index) => {
 												return (
 													<Col key={column_index}>
-														<label>
-															<Form.Check
-																key={column_index}
+														{/* TODO: MOVE CHECKBOX TO SEPARATE COMPONENT */}
+														<Form.Check
+															key={column_index}
+														>
+															<Form.Check.Input
+																type="checkbox"
+																id={`preference-checkbox-${column_index}${row_index}`}
+																value = {`${column_index}${row_index}`}
+															></Form.Check.Input>
+															<Form.Check.Label
+																htmlFor={`preference-checkbox-${column_index}${row_index}`}
+																className='badge badge-pill badge-primary'
+																onClick = {() => {console.log(this)}}
 															>
-																<Form.Check.Input
-																	type="checkbox"
-																	id={`preference-checkbox-${column_index}${row_index}`}
-																	// value={[column_index, row_index]}
-																	value = {`${column_index}${row_index}`}
-																></Form.Check.Input>
-																<Form.Check.Label
-																	htmlFor={`preference-checkbox-${column_index}${row_index}`}
-																>
-																	{ts.day},{ts.timeslot}
-																</Form.Check.Label>
-															</Form.Check>
-														</label>
+																{ts.day},{ts.timeslot}
+															</Form.Check.Label>
+														</Form.Check>
 													</Col>
 												)
 											})}
@@ -453,14 +452,6 @@ class GenerateStudentsModal extends React.Component<any, any> {
 			</Modal>
 		);
 	}
-}
-
-class PreferenceCheckbox extends React.Component {
-	state = {
-		checked: false
-	}
-
-
 }
 
 const blockButtonStyle: React.CSSProperties = {
