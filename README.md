@@ -1,6 +1,6 @@
 # workshop-scheduler
 
-This is a workshop scheduler planner build during a seminar on Information Systems and Technology 
+A workshop scheduler built for the seminar Information Systems and Technology at Kyoto University, during my exchange semester in spring 2019. From the same semester: my [Pattern Recognition coursework](https://github.com/Voldemorten/kyu_pattern_recognition).
 
 The problem is as follows:
 
